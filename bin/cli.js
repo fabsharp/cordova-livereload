@@ -48,15 +48,15 @@ const isCordovaApp = (folder) => new Promise((resolve, reject) => {
     })
 });
 
-let port = argv.p || argv.port || 3000;
-let cordovaApp =  argv._[0] || '.';
-
 const logError = (err) => {
-    console.log(colors.red(err.message));
+    if(err.message) {
+        console.log(colors.red(err.message));
+    }
+    else {
+        console.log(colors.red(err));
+    }
     process.exit();
 };
-
-
 
 const ip = require('ip');
 const server = require("../lib/index");
@@ -77,6 +77,8 @@ process.on('SIGINT', process_exit);
 
 process.on('SIGTERM', process_exit);
 
+let port = argv.p || argv.port || 3000;
+let cordovaApp =  argv._[0] || '.';
 isCordovaApp(cordovaApp).then(() => {
     isPortAvailable(port).then(() => {
         server.start({
