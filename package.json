@@ -1,0 +1,26 @@
+{
+  "name": "cordova-livereload",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bin": {
+    "cordova-livereload": "./bin/cli.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "chokidar": "^3.3.1",
+    "colors": "^1.4.0",
+    "express": "^4.17.1",
+    "ip": "^1.1.5",
+    "minimist": "^1.2.0",
+    "socket.io": "^2.3.0",
+    "xml-formatter": "^1.2.0",
+    "xml-js": "^1.6.11"
+  }
+}
