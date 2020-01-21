@@ -10,11 +10,14 @@ let version = require('../package.json').version;
 let help = `
 cordova-livereload v${version}
 ===========================================================
-usage : cordova-live-reload [options] <path-to-cordova-app>
+usage : cordova-livereload [options] <path-to-cordova-app>
 [options] :
-    -p --port          Port to use [default : 3000]
     -h --help          Print this list and exit.
-    -v --version       Print the version and exit.'   
+    -v --version       Print the version and exit.
+# configuration    
+    -p --port          Port to use (default : 3000)   
+    --android
+    --ios   
 <path-to-cordova-app>
     Path to a valid cordova app [default : .]`;
 
