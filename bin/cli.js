@@ -80,17 +80,29 @@ process.on('SIGINT', process_exit);
 
 process.on('SIGTERM', process_exit);
 
-let port = argv.p || argv.port || 3000;
 let cordovaApp =  argv._[0] || '.';
 isCordovaApp(cordovaApp).then(() => {
-    isPortAvailable(port).then(() => {
+    if(argv.p || argv.port) {
+        let port = argv.p || argv.port;
         server.start({
             port : port,
             app : cordovaApp,
             ip : ip.address()
         })
-    }, logError);
-}, (err) => {
-    console.log(colors.red(`${cordovaApp} is not a valid cordova application : https://cordova.apache.org/#getstarted`));
-    logError(err);
+    }
+    else {
+        const getPort = require('get-port');
+        (async () => {
+            let port = await getPort({port: 3000});
+            server.start({
+                port : port,
+                app : cordovaApp,
+                ip : ip.address()
+            })
+        })()
+    }
+}, () => {
+    const path = require("path");
+    let targetDirectory = path.resolve(process.cwd(), cordovaApp)
+    logError(`${targetDirectory} is not a Cordova-based project.`);
 });
