@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 
+const { execSync } = require('child_process');
+const inquirer = require('inquirer');
 const log = require('../lib/log');
 let argv = require('minimist')(process.argv.slice(2));
 
@@ -17,6 +19,7 @@ usage :
     -h --help          Print this list and exit.
     -v --version       Print the version and exit. 
     -p --port          Port to use (default : 3000)   
+    -l --list-devices  Choose a device or emulator to livereload
 # <path-to-cordova-app>
     Path to a valid cordova app [default : .]
 # cordova command [cordova-options]`;
@@ -31,14 +34,6 @@ if (argv.v || argv.version) {
     process.exit();
 }
 
-/**const isPortAvailable = (port) => new Promise((resolve, reject) => {
-    const net = require('net');
-    const tester = net.createServer()
-        .once('error', err => reject(err))
-        .once('listening', () => tester.once('close', () => resolve()).close())
-        .listen(port);
-});**/
-
 const fs = require('fs');
 const isCordovaApp = (folder) => new Promise((resolve, reject) => {
     fs.access(folder + '/config.xml', fs.F_OK, (err) => {
@@ -49,8 +44,6 @@ const isCordovaApp = (folder) => new Promise((resolve, reject) => {
         resolve();
     })
 });
-
-
 
 const ip = require('ip');
 const server = require("../lib/index");
@@ -83,28 +76,82 @@ function _getPort() {
     }
 }
 
+function _promptDevice() {
+    return new Promise((resolve, reject) => {
+        if(argv.l || argv['list-device']) {
+            let targets = [];
+            let androidEmulators = execSync('emulator -list-avds', {
+                cwd : cordovaApp
+            }, (err) => {
+                log.error('Android emulator not found.')
+            });
+            androidEmulators = androidEmulators.toString();
+            if(androidEmulators) {
+                let split = androidEmulators.split('\r\n');
+                split.forEach((item) => {
+                    if(item) {
+                        targets.push(item);
+                    }
+                })
+            }
+            let androidDevices = execSync('adb devices', {
+                cwd : cordovaApp
+            });
+            androidDevices = androidDevices.toString();
+            let split = androidDevices.split('\n');
+            for(let i = 1; i < split.length; i++) {
+                let device = split[i].split('\t')[0];
+                device = device.replace('\r', '');
+                if(device) {
+                    targets.push(device);
+                }
+            }
+            inquirer.prompt([
+                {
+                    type : "checkbox",
+                    name : 'targets',
+                    message : "What devices to livereload ?",
+                    choices : targets
+                }
+            ]).then(responses => {
+                resolve(responses.targets);
+            });
+        }
+        else {
+            resolve();
+        }
+    })
+}
+
+
 _getPort().then((port) => {
-    if(cordovaApp === 'cordova') {
-        server.start({
-            port : port,
-            ip : ip.address(),
-            app : '.',
-            commands : argv._
-        })
-    }
-    else {
-        isCordovaApp(cordovaApp).then(() => {
+    _promptDevice().then((devices) => {
+        if(cordovaApp === 'cordova') {
             server.start({
                 port : port,
-                app : cordovaApp,
-                ip : ip.address()
+                ip : ip.address(),
+                app : '.',
+                commands : argv._,
+                devices : devices
+            })
+        }
+        else {
+            isCordovaApp(cordovaApp).then(() => {
+                server.start({
+                    port : port,
+                    app : cordovaApp,
+                    commands : ['cordova', 'run', 'android'],
+                    ip : ip.address(),
+                    devices : devices
+                });
+            }, () => {
+                const path = require("path");
+                let targetDirectory = path.resolve(process.cwd(), cordovaApp);
+                log.error(`${targetDirectory} is not a Cordova-based project.`);
             });
-        }, () => {
-            const path = require("path");
-            let targetDirectory = path.resolve(process.cwd(), cordovaApp);
-            logError(`${targetDirectory} is not a Cordova-based project.`);
-        });
-    }
+        }
+    });
+
 });
 
 
