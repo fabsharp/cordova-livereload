@@ -1,13 +1,13 @@
 {
   "name": "cordova-livereload",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.9.0",
+  "description": "Livereload cordova app in emulator or devices\n",
+  "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Fabien Le Vavasseur",
   "license": "ISC",
   "bin": {
     "cordova-livereload": "./bin/cli.js"
@@ -22,9 +22,8 @@
     "node-watch": "^0.6.3",
     "socket.io": "^2.3.0",
     "xml-formatter": "^1.2.0",
-    "xml-js": "^1.6.11"
-  },
-  "devDependencies": {
+    "xml-js": "^1.6.11",
     "colors": "^1.4.0"
-  }
+  },
+  "devDependencies": {}
 }
