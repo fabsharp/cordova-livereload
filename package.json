@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
-    "colors": "^1.4.0",
     "express": "^4.17.1",
     "get-port": "^5.1.1",
     "ip": "^1.1.5",
@@ -23,5 +22,8 @@
     "socket.io": "^2.3.0",
     "xml-formatter": "^1.2.0",
     "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "colors": "^1.4.0"
   }
 }
